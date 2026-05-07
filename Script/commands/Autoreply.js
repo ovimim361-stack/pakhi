@@ -1,123 +1,86 @@
-const axios = require("axios");
-
-const apiList = "https://raw.githubusercontent.com/shahadat-sahu/SAHU-API/refs/heads/main/SAHU-API.json";
-
-const getMainAPI = async () => (await axios.get(apiList)).data.simsimi;
+const fs = global.nodemodule["fs-extra"];
+const path = global.nodemodule["path"];
 
 module.exports.config = {
   name: "autoreplybot",
-  version: "2.0.0",
+  version: "6.0.2",
   hasPermssion: 0,
-  credits: "SHAHADAT SAHU",
-  usePrefix: false,
-  commandCategory: "Chat",
-  cooldowns: 0
+  credits: "𝐒𝐡𝐚𝐡𝐚𝐝𝐚𝐭 𝐈𝐬𝐥𝐚𝐦",
+  description: "Auto-response bot with specified triggers",
+  commandCategory: "No Prefix",
+  usages: "[any trigger]",
+  cooldowns: 3,
 };
 
-module.exports.handleEvent = async function ({ api, event }) {
-  const { threadID, messageID, body, senderID } = event;
-  if (!body) return;
-
+module.exports.handleEvent = async function ({ api, event, Users }) {
+  const { threadID, messageID, senderID, body } = event;
+  if (!body) return; 
+  const name = await Users.getNameUser(senderID);
   const msg = body.toLowerCase().trim();
 
   const responses = {
-    "miss you": "অরেক বেডারে Miss না করে xan মেয়ে হলে বস সাহু রে হাঙ্গা করো😶👻😘",
-    "miss u too": "হুম আমি ও তোমাকে Miss করি... কিন্তু সাহু বস বেশি করে 😏💖",
+    "miss you": "অরেক বেডারে 𝗺𝗶𝘀𝘀 না করে xan মেয়ে হলে বস অভি রে বিয়ে করো😶👻😘𝐅𝐀𝐂𝐄𝐁𝐎𝐎𝐊 𝐈𝐃 𝐋𝐈𝐍𝐊 🌻:- https://www.facebook.com/100078223341664",
     "kiss de": "কিস দিস না তোর মুখে দূর গন্ধ কয়দিন ধরে দাঁত ব্রাশ করিস নাই🤬",
-    "👍": "সর এখান থেকে লাইকার আবাল..!🐸🤣👍⛏️",
-    "hi": "এত হাই-হ্যালো কর ক্যান প্রিও..!😜🫵",
-    "bc": "SAME TO YOU😊",
-    "pro": "Khud k0o KYa LeGend SmJhTi Hai 😂",
-    "good morning": "GOOD MORNING দাত ব্রাশ করে খেয়ে নেও😚",
-    "good night": "Sweet Dream babu… তবে আগে সাহু বস কে GN বলে নিও 😏💤",
-    "tor ball": "~ এখনো বাল উঠে নাই নাকি তোমার?? 🤖",
-    "shahadat": "উনি এখন কাজে বিজি আছে কি বলবেন আমাকে বলতে পারেন..!😘",
-    "owner": "‎[𝐎𝐖𝐍𝐄𝐑:☞ SHAHADAT SAHU ☜\nFacebook: https://www.facebook.com/profile.php?id=100044713412032\nWhatsApp: +8801882333052",
-    "admin": "He is SHAHADAT SAHU তাকে সবাই Admin SAHU হিসেবে চিনে😘☺️",
-    "babi": "এ তো হাছিনা হে মেরে দিলকি দারকান হে মেরি জান হে😍.",
-    "chup": "তুই চুপ চুপ কর পাগল ছাগল",
-    "Assalamualaikum": "Walaikumassalam❤️‍🩹",
-    "fork": "https://github.com/shahadat-sahu/SHAHADAT-CHAT-BOT.git",
+    "🥲": "𝗸𝗶 𝗵𝗼𝗶𝘀𝗲 𝗷𝗮𝗻 𝗺𝗼𝗻 𝗸𝗵𝗮𝗿𝗮𝗽 𝗸𝗲𝗻𝗼।🐸👍⛏️",
+    "রাব্বি": "শুনলাম তোমাদের রাব্বি ভাইয়া গার্লফ্রেন্ড নিয়ে চিপায় ধরা পড়ছে সত্যি নাকি😩🤣",
+    "hi": "এত হাই-হ্যালো কর ক্যান প্রিও. সালাম দিতে শিখো.!😜🫵",
+    "i miss you": "SAME TO You মেয়ে হলে এডমিন রাব্বি কে নক দেও 😊",
+    "ki kro": "Khud k0o KYa LeGend SmJhTi Hai তোমাকে মিস করতেছি জান 😂",
+    "good morning": "𝗚𝗼𝗱 𝗠𝗼𝗿𝗻𝗶𝗻𝗴 আলহামদুলিল্লাহ আরো একটি সকাল পেলাম এখন দাত ব্রাশ করে খেয়ে নেও😚",
+    "bal": "~ পচা কথা বলে না জান মানুষ লুচ্চা বলবে?? 🤖",
+    "ovi": "উনি এখন  বিজি আছে কি বলবেন আমাকে বলতে পারেন..!😘জরুরি হলে ইনবক্স নক দেন𝐅𝐀𝐂𝐄𝐁𝐎𝐎𝐊 𝐈𝐃 𝐋𝐈𝐍𝐊 🌻:- https://www.facebook.com/100078223341664",
+    "soumi": "কি রে লুচ্চা ভাবি রে ডাকিস কেন",
+    "admin": "He is MBH ovi তাকে সবাই কিছু স্বপ্ন কিছু আসা ফ্যামেলি বক্স creator হিসেবে চিনে😘☺️",
+    "bot tmr boss er name ki": "আমার বস অভি তিনি হলেন কিছু স্বপ্ন কিছু আসা ফ্যামেলি বক্সের creator 😍.",
+    "chup": "তুই চুপ চুপ কর পাগল ছাগল তোর কথা শুনার টাইম নাই🤣😩😒",
+    "assalamualaikum": "❤️‍🩹😍 Walaikumus Salam o rohmatullah ❤️‍🩹কেমন আছেন 💖",
+    "@White M Flower": "তোর সাহস তো কম না অভির হবু বউ কে ম্যানশন দিস আর ভাবি বল ভাবি🙊🤫",
     "kiss me": "তুমি পঁচা তোমাকে কিস দিবো না 🤭",
-    "thanks": "এতো ধন্যবাদ না দিয়ে আমার বস সাহু রে তোর গার্লফ্রেন্ড টা দিয়ে দে..!🐸🥵",
-    "i love you": "মেয়ে হলে আমার বস সাহু এর ইনবক্সে এখুনি গুঁতা দিন🫢😻",
-    "love you": "ভালোবাসা নামক আবলামী করতে চাইলে Boss সাহু এর ইনবক্সে গুতা দিন 😘",
-    "by": "কিরে তুই কই যাস কোন মেয়ের সাথে চিপায় যাবি..!🌚🌶️",
-    "ami shahadat": "হ্যা বস কেমন আছেন..?☺️",
-    "bot er baccha": "আমার বাচ্চা তো তোমার গার্লফ্রেন্ডের পেটে..!!🌚⛏️",
-    "tor nam ki": "MY NAME IS ─꯭─⃝‌‌𝐒𝐡𝐚𝐡𝐚𝐝𝐚𝐭 𝐂𝐡𝐚𝐭 𝐁𝐨𝐭💖",
-    "pic de": "এন থেকে সর দুরে গিয়া মর😒",
-    "cudi": "এত চোদা চুদি করস কেনো..!🥱🌝🌚",
+    "thanks": "এতো ধন্যবাদ না দিয়ে আমার বস ovi রে তোর গার্লফ্রেন্ড টা দিয়ে দে..!🐸🥵",
+    "i love you": "মেয়ে হলে আমার বস ovi এর ইনবক্সে এখুনি গুঁতা দিন🫢😻 😶👻😘𝐅𝐀𝐂𝐄𝐁𝐎𝐎𝐊 𝐈𝐃 𝐋𝐈𝐍𝐊 🌻:- https://www.facebook.com/100078223341664",
+    "by": "কিরে তুই কই যাস কোন লাঙ্গের সাথে চিপায় যাবি..!🌚🌶️",
+    "রাকিব": "ম্যানশন দিয়ে লাভ নাই রাকিব এখন  সকিনার আম্মু সাথে বিজি আছে🌶️",
+    "tanisa": "tansia chipay busy",
+    "tanjina": "সর ডাকিস না..! তানজিনা বস অভির সাথে বিজি আছে..!🤐🙊",
+    "‎@আবিরের কাদম্বিনী": "দিন শেষে পরের বউ সুন্দর ম্যানশন দিয়ে লাভ নাই অন্যের বউ লাগে মনে তোর ভাবি🤧📢🥱",
+    "👋": "হাত মারো কেন সোনা কথা বলো🥵👄.!",
+    "@احسن حبیب": "দেখ পাগল রে আবার লারা দিছে😂🤧🥱..! সুন পাগল চেতান ভালো না লারা ডিস না...!😂🤐",
+    "mithila": "কি হলো মিস্টেক করেছিস নাকি..!📢",
+    "@मिस टीसा": "ভাগ্য করে একটা loyal বেডি পাইছিলাম, অন্য বেডা তো দূরে থাক আমাকেই পাত্তা দিচ্ছে না।...!😑😒🤧",
+    "@স্বপ্নের ঠিকানা": "L.CEO মাহী সিঙ্গেল আছে. চাইলে প্রপোজ করতে পারো..💔😘📢",
+    "ami tor boss": "হ্যা বস কেমন আছেন..?☺️",
+    "ovir baccha": "অভির বাচ্চা তো তোমার গার্লফ্রেন্ডের পেটে..!!🌚⛏️",
+    "@জাঁনঁ তুঁমাঁরঁ পিঁচ্ছিঁ বঁউঁ": "ম্যানশন দিয়ে লাভ নাই এটা অভির হবু বউ মানে তদের ভাবি লাগে🤐🤧..!", 
+    "log out": "উপস্থাপক কিউট এর ডিব্বা মানে ফাল্টিং এর রাজা মেয়েরা সাবধান..😂😂",
+    "নোশিন": "📢 everyone নশিন আর নাই মানে গ্রুপে নাই চিপায় আটকে গেছে",
+    "misti": "অযথাই ম্যানশন ডিস না ভাই পারলে একটা জামাই দে..😘🤧",
+    "মাহী": "লুচ্ছাদের মত অন্যের gf রে ম্যানশন ডিস না পারলে নিজে একটা gf বানা..📢",
+    "আসসালামু আলাইকুম": "আলাইকুম আসসালাম কেমন আছেন...!🤩",
+    "মীম": "তুই দয়াল বেডি মীম রে খুঁজিস কেনো প্রেম করবি নাকি😂🤧",
+    "bot tor boss ke": "আমার বস অভি...🤩🥰",
+    "তানহা": "ম্যানশন ডিস না অভির সাথে মিটিং এ বিজি আছে..💖🤐",
+    "adil": "ম্যানশন ডিস না আদিল পরকীয়া করতে গেছে😁😩",
+    "আকাশ": "মাস্টার মাইন্ড লুচ্চা আকাশ তাকে পেতে হলে চিপা চাপা মেয়েদের ইনবক্স এ খুজতে হবে..🥱🤐😁",
+    "জেনি": "বস অভির সাথে চিপায় আছে এখন বিরক্ত করিস না🥱🤐😩",
+    "tmr name ki": "এত দিন থেকে গ্রুপে আছো নামে জানো না MY NAME IS ─꯭─⃝‌‌অভির পিচ্ছি বউ💖",
+    "sakib": "এত সাকিব সাকিব করো প্রেমে পড়ছো নাকি চিট কালি নাই ওয়েট করো📢😒",
+    "@White M Flower": "তোর সাহস তো কম না অভির হবু বউ কে ম্যানশন দিস আর ভাবি বল ভাবি🙊",
+    "রুল্স": "1 মেম্বার এর সাথে গালা গালি করে কথা বল্লে  কিক❌😒3️⃣গুটি বাজ ফাপর বাজ হলে কিক❗✅😾4️⃣active না থাকলে কিক❌😈5️⃣রুলস না মানলে কিক❌👿6️⃣ ১৮+ কোনো কথা পিক ভিডিও  দিলে কিক❌9️⃣ বিনা অনুমতি ছাড়া কোনো ছেলে / মেয়ে করো ইনবক্সে নক দিলে নোটিশ ছাড়া কিক❌👿1️⃣1️⃣ বাংলাদেশ টাইম রাত 8:50টা থেকে ১০:০০ টা পর্যন্ত এস এস তখন কলে না আসলে কিক❌👿☑️প্রতিদিন কলে ২/৩ ঘন্টা সময় দিতে হবে ❗ধন্যবাদ 💔 কারণ ছাড়া ss টাইম মিস করলে কিক😡😡❤️‍🩹কলে কোনো সমস্যার কারনে না আসতে পারলে,গ্রুপ এডমিন কে বলতে হবে, যে কলে আসতে পারবো না,, ✅😘ধন্যবাদ কলিজার ভাই & আপু রা.!🥱🌝🌚",
     "bal": "রাগ করে না সোনা পাখি 🥰",
-    "heda": "এতো রাগ শরীরের জন্য ভালো না 🥰",
-    "boda": "ভাই তুই এত হাসিস না..!🌚🤣",
-    "kire ki koros": "তোমার কথা ভাবতে ছি জানু 😚",
-    "ki koros": "বস সাহু এর সাথে প্রেমে ব্যস্ত আছি 😏💘",
-    "kire bot": "হ্যাঁ সব কেমন আছেন আপনার ওই খানে উম্মাহ 😘😽🙈",
-    "valo aso": "হ্যাঁ রে প্রিও, বস সাহু এর দোয়ায় ভালো আছি 😌💞",
-    "pagol": "হুম পাগল, কিন্তু তোমারই পাগল 😏😂",
-    "breakup": "চিন্তা করিস না… সাহু বস তো আছেই তোকে নতুন জন দিয়া দিবে 😎🔥",
-    "tui ke": "আমি তোর বস সাহু এর ChatBot 😏",
-    "umm": "এতো Umm কেনো জানু… কিছু বলবা? 😉",
-    "hmm": "Hmmm কিসের হুমম জানু 🥵",
-    "love": "Love করলে সরাসরি সাহু বস কে বল জানু 😻🔥"
+    "নোটিশ": "আমাদের ss time রাত 8:30-9:30 এই টাইম সবাইকে কল থাকতে হবে বাধ্যতা মূলক। কারণ ছাড়া ss টাইম মিস করলে কিক😡😡😈🥰",
+    "ruhi": "কিরে এত ডাকা ডাকি করিস প্রেমে পড়ে গেলি নাকি🙈🙊",
+    "মেহজাবিন": "খবরদার এই নাম ধরে ডাকবি না এটা বস অভির হবু বউ ..!🌚🤣",
+    "bot i love you": "আমাকে না বলে। প্রেম করতে চাইলে Boss ovi এর ইনবক্সে গুতা দিন 😘",
+    "@everyone": "📢@everyone চিপা থেকে বের হয় গ্রুপে আসো সময় দেও😈.!🌚",
+    "আয়াত": "গ্রুপে আয়াত আয়াত না করলে ইনবক্সে গিয়ে প্রপোজ করলেও তো পারিস📢😩😏🥱",
+    "faiza": "নাটক কোম করো পিও তুমি যে ফাইজা কে ভালবেসে ফেলছ এটা আমি জানি😂😽🙈"
   };
 
-  if (!responses[msg]) return;
-
-  if (!global.client.handleReply) global.client.handleReply = [];
-
-  return api.sendMessage(
-    responses[msg],
-    threadID,
-    (err, info) => {
-      global.client.handleReply.push({
-        name: this.config.name,
-        messageID: info.messageID,
-        author: senderID,
-        type: "sahu"
-      });
-    },
-    messageID
-  );
-};
-
-module.exports.handleReply = async function ({ api, event, handleReply }) {
-  if (event.senderID !== handleReply.author) return;
-
-  try {
-    const text = event.body.trim();
-
-    const base = await getMainAPI();
-    const link = `${base}/simsimi?text=${encodeURIComponent(text)}`;
-
-    const res = await axios.get(link);
-
-    const reply = Array.isArray(res.data.response)
-      ? res.data.response[0]
-      : res.data.response;
-
-    if (!global.client.handleReply) global.client.handleReply = [];
-
-    return api.sendMessage(
-      reply,
-      event.threadID,
-      (err, info) => {
-        global.client.handleReply.push({
-          name: module.exports.config.name,
-          messageID: info.messageID,
-          author: event.senderID,
-          type: "sahu"
-        });
-      },
-      event.messageID
-    );
-
-  } catch {
-    return api.sendMessage("🙂 একটু পরে আবার বলো", event.threadID, event.messageID);
+  if (responses[msg]) {
+    return api.sendMessage(responses[msg], threadID, messageID);
   }
 };
 
-module.exports.run = async function ({ api, event }) {
-  return module.exports.handleEvent({ api, event });
+module.exports.run = async function ({ api, event, args, Users }) {
+  return this.handleEvent({ api, event, Users });
 };
