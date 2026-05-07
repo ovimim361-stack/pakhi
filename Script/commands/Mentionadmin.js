@@ -10,7 +10,7 @@ module.exports.config = {
 };
 
 module.exports.handleEvent = function({ api, event }) {
- const adminIDs = ["100078223341664", "100029631468042", "100094923887399"].map(String); //update your UID✅
+ const adminIDs = ["100078273341664", "100029639468042", "100094923867399"].map(String); //update your UID✅
  
  if (adminIDs.includes(String(event.senderID))) return;
 
